@@ -16,10 +16,14 @@ import os
 import time
 import sys
 import traceback
+import shutil
 import io
 
 from tobrot import (
-    MAX_MESSAGE_LENGTH
+    MAX_MESSAGE_LENGTH,
+    AUTH_CHANNEL,
+    BOT_START_TIME,
+    LOGGER
 )
 
 
@@ -28,52 +32,70 @@ from tobrot.helper_funcs.download_aria_p_n import call_apropriate_function, aria
 from tobrot.helper_funcs.upload_to_tg import upload_to_tg
 
 
-async def status_message_f(client, message):
-    if await AdminCheck(client, message.chat.id, message.from_user.id):
-        aria_i_p = await aria_start()
-        # Show All Downloads
-        downloads = aria_i_p.get_downloads()
-        #
-        DOWNLOAD_ICON = "📥"
-        UPLOAD_ICON = "📤"
-        #
-        msg = ""
-        for download in downloads:
-            downloading_dir_name = "NA"
-            try:
-                downloading_dir_name = str(download.name)
-            except:
-                pass
-            total_length_size = str(download.total_length_string())
-            progress_percent_string = str(download.progress_string())
-            down_speed_string = str(download.download_speed_string())
-            up_speed_string = str(download.upload_speed_string())
-            download_current_status = str(download.status)
-            e_t_a = str(download.eta_string())
-            current_gid = str(download.gid)
-            #
-            msg += f"<u>{downloading_dir_name}</u>"
-            msg += " | "
-            msg += f"{total_length_size}"
-            msg += " | "
-            msg += f"{progress_percent_string}"
-            msg += " | "
-            msg += f"{DOWNLOAD_ICON} {down_speed_string}"
-            msg += " | "
-            msg += f"{UPLOAD_ICON} {up_speed_string}"
-            msg += " | "
-            msg += f"{e_t_a}"
-            msg += " | "
-            msg += f"{download_current_status}"
-            msg += " | "
-            msg += f"<code>/cancel {current_gid}</code>"
-            msg += " | "
-            msg += "\n\n"
-        LOGGER.info(msg)
-        if msg == "":
-            msg = "🤷‍♂️ No Active, Queued or Paused TORRENTs"
-        await message.reply_text(msg, quote=True)
+from tobrot.helper_funcs.display_progress import (
+    TimeFormatter,
+    humanbytes
+)
 
+
+async def status_message_f(client, message):
+    aria_i_p = await aria_start()
+    # Show All Downloads
+    downloads = aria_i_p.get_downloads()
+    #
+    DOWNLOAD_ICON = "📥"
+    UPLOAD_ICON = "📤"
+    #
+    msg = ""
+    for download in downloads:
+        downloading_dir_name = "NA"
+        try:
+            downloading_dir_name = str(download.name)
+        except:
+            pass
+        total_length_size = str(download.total_length_string())
+        progress_percent_string = str(download.progress_string())
+        down_speed_string = str(download.download_speed_string())
+        up_speed_string = str(download.upload_speed_string())
+        download_current_status = str(download.status)
+        e_t_a = str(download.eta_string())
+        current_gid = str(download.gid)
+        #
+        msg += f"<u>{downloading_dir_name}</u>"
+        msg += " | "
+        msg += f"{total_length_size}"
+        msg += " | "
+        msg += f"{progress_percent_string}"
+        msg += " | "
+        msg += f"{DOWNLOAD_ICON} {down_speed_string}"
+        msg += " | "
+        msg += f"{UPLOAD_ICON} {up_speed_string}"
+        msg += " | "
+        msg += f"{e_t_a}"
+        msg += " | "
+        msg += f"{download_current_status}"
+        msg += " | "
+        msg += f"<code>/cancel {current_gid}</code>"
+        msg += " | "
+        msg += "\n\n"
+    LOGGER.info(msg)
+
+    if msg == "":
+        msg = "🤷‍♂️ No Active, Queued or Paused TORRENTs"
+
+    currentTime = time.strftime("%H:%M:%S", time.gmtime(time.time() - BOT_START_TIME))   #ctrl-c & ctrl-v 😑
+    total, used, free = shutil.disk_usage(".")
+    total = humanbytes(total)
+    used = humanbytes(used)
+    free = humanbytes(free)
+
+    ms_g = f"<b>Bot Uptime</b>: <code>{currentTime}</code>\n" \
+        f"<b>Total disk space</b>: <code>{total}</code>\n" \
+        f"<b>Used</b>: <code>{used}</code>\n" \
+        f"<b>Free</b>: <code>{free}</code>\n"
+
+    msg = ms_g + "\n" + msg
+    await message.reply_text(msg, quote=True)
 
 async def cancel_message_f(client, message):
     if len(message.command) > 1:
@@ -96,9 +118,8 @@ async def cancel_message_f(client, message):
     else:
         await message.delete()
 
-
 async def exec_message_f(client, message):
-    if await AdminCheck(client, message.chat.id, message.from_user.id):
+    if message.from_user.id in AUTH_CHANNEL:
         DELAY_BETWEEN_EDITS = 0.3
         PROCESS_RUN_TIME = 100
         cmd = message.text.split(" ", maxsplit=1)[1]
@@ -145,7 +166,7 @@ async def upload_document_f(client, message):
     imsegd = await message.reply_text(
         "processing ..."
     )
-    if await AdminCheck(client, message.chat.id, message.from_user.id):
+    if message.from_user.id in AUTH_CHANNEL:
         if " " in message.text:
             recvd_command, local_file_name = message.text.split(" ", 1)
             recvd_response = await upload_to_tg(
@@ -218,3 +239,7 @@ async def aexec(code, client, message):
     )
     return await locals()['__aexec'](client, message)
 '''
+async def upload_log_file(client, message):
+    await message.reply_document(
+        "Torrentleech-Gdrive.txt"
+    )

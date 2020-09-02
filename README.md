@@ -1,11 +1,12 @@
-# for support join here [TorrentLeech-Gdrive](https://telegram.dog/torrentleechgdrivesupport)
-# working example group [Leech Here](https://telegram.dog/torrentleechgdrive)
+# for support join here [TorrentLeech-Gdrive](https://telegram.dog/GBotStore)
+# working example group [Leech Here](https://telegram.dog/GBotStore)
 
 # Telegram Torrent Leecher 🔥🤖
 
 A Telegram Torrent (and youtube-dl) Leecher based on [Pyrogram](https://github.com/pyrogram/pyrogram)
 
 # Benefits :-
+    ✓ Google Drive link cloning using gclone.(wip)
     ✓ Telegram File mirrorring to cloud along with its unzipping, unrar and untar
     ✓ Drive/Teamdrive support/All other cloud services rclone.org supports
     ✓ Unzip
@@ -14,16 +15,42 @@ A Telegram Torrent (and youtube-dl) Leecher based on [Pyrogram](https://github.c
     ✓ Custom file name
     ✓ Custom commands
     ✓ Get total size of your working cloud directory
-    ✓ Now you can also upload files downloaded from /ytdl command to gdrive using `/ytdl gdrive` command.
-    ✓ 
+    ✓ You can also upload files downloaded from /ytdl command to gdrive using `/ytdl gdrive` command.
+    ✓ You can also deploy this on your VPS
+    ✓ Option to select either video will be uploaded as document or streamable
+    ✓ Added /renewme command to clear the downloads which are not deleted automatically.
+    ✓ Added support for youtube playlist 😐
+    ✓
+    
+# TO-DO
+-   ~Gdrive file clonning using Gclone~ `DONE ✓`
+-   [ ] Adding mp3 files support while playlist downloading.
+-   [ ] Password support while Unarchiving the files.
+-   [ ] Selection of required files during leeching the big files using aria(/leech command)
 
 ### Credit goes to SpEcHiDe for his Publicleech repo.
 
-## installing
+## installing...
 
-### The Easy Way (Fork this repo and tap on deploy button)
+### The Easy Way
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+#### STEPS (I did this to avoid the use of same button multiple times)
+
+a)You have to fork this repo at first(Don't know how to🤔, Then google it😐)
+
+b)Find `app.jso`. 🧐
+
+c)Tap on that. 😬
+
+d)Tap to edit and just add `n` at last of name (Don't touch code🤦). ✍️
+
+e)It should look like `app.json`. 🎉
+
+f)Then tap 👇👇
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) #Revived
+
+Better buy a vps 😐 and follow [this](https://github.com/gautamajay52/TorrentLeech-Gdrive#process-to-run-this-bot-on-vps)
 
 ### The Legacy Way
 Simply clone the repository and run the main file:
@@ -31,7 +58,7 @@ Simply clone the repository and run the main file:
 ```sh
 git clone https://github.com/SpEcHiDe/PublicLeech.git
 cd PublicLeech
-virtualenv -p /usr/bin/python3 venv
+python3 -m venv venv
 . ./venv/bin/activate
 pip install -r requirements.txt
 # <Create config.py appropriately>
@@ -46,7 +73,7 @@ class Config(Config):
   TG_BOT_TOKEN = ""
   APP_ID = 6
   API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
-  AUTH_CHANNEL = -1001234567890
+  AUTH_CHANNEL = [-1001234567890]
 ```
 
 ### Variable Explanations
@@ -64,6 +91,8 @@ class Config(Config):
 * `RCLONE_CONFIG`: Create the rclone config using the rclone.org and read the rclone section for the next.
 
 * `DESTINATION_FOLDER`: Name of your folder in ur respective drive where you want to upload the files using the bot.
+
+* `OWNER_ID`: ID of the bot owner, He/she can be abled to access bot in bot only mode too(private mode).
 
 ##### Set Rclone
 
@@ -141,14 +170,32 @@ and everythin except `[NAME]`
 
 * `YTDL_COMMAND`
 
+* `GLEECH_COMMAND`
+
 * `TELEGRAM_LEECH_COMMAND_G`
+
+* `PYTDL_COMMAND_G`
+
+* `CLONE_COMMAND_G`
+
+* `UPLOAD_AS_DOC`: Takes two option True or False. If True file will be uploaded as document. This is for people who wants video files as document instead of streamable.
 
 * `INDEX_LINK`: (Without `/` at last of the link, otherwise u will get error) During creating index, plz fill `Default Root ID` with the id of your `DESTINATION_FOLDER` after creating. Otherwise index will not work properly.
 ## Available Commands
 
+* `/gclone`: This command is used to clone gdrive files or folder using gclone.
+       
+       Syntax:- `[ID of the file or folder][one space][name of your folder only(If the id is of file, don't put anything)]` and then reply /gclone to it.
+       
+* `/log`: This will send you a txt file of the logs.
+
 * `/ytdl`: This command should be used as reply to a [supported link](https://ytdl-org.github.io/youtube-dl/supportedsites.html)
 
+* `/pytdl`: This command will download videos from youtube playlist link and will upload to telegram.
+
 * `/ytdl gdrive`: This will download and upload to your cloud.
+
+* `/pytdl gdrive`: This download youtube playlist and upload to your cloud.
 
 * `/leech`: This command should be used as reply to a magnetic link, a torrent link, or a direct link. [this command will SPAM the chat and send the downloads a seperate files, if there is more than one file, in the specified torrent]
 
@@ -180,11 +227,13 @@ and everythin except `[NAME]`
 
 * `/getsize`: This will give you total size of your destination folder in cloud.
 
+* `/renewme`: This will clear the remains of downloads which are not getting deleted after upload of the file or after /cancel command. 
 
-* [Only work with direct link for now]It is like u can add custom name as prefix of the original file name.
+
+* [Only work with direct link and youtube link for now]It is like u can add custom name as prefix of the original file name.
 Like if your file name is `gk.txt` uploaded will be what u add in `CUSTOM_FILE_NAME` + `gk.txt`
 
-Only works with direct link.No magnet or torrent.
+Only works with direct link/youtube link.No magnet or torrent.
 
 And also added custom name like...
 
@@ -193,19 +242,53 @@ You have to pass link as
 
 the file will be uploaded as `new.txt`.
 
+## Process to run this BOT on VPS
+
+- Clone this repo:
+```
+git clone https://github.com/gautamajay52/TorrentLeech-Gdrive torrentleech-gdrive
+cd torrentleech-gdrive
+```
+
+- Install requirements
+For Debian based distros
+```
+sudo apt install python3
+
+sudo snap install docker
+```
+Install Docker by following the [official docker docs](https://docs.docker.com/engine/install/debian/)
+
+## Setting up config file
+```
+cp tobrot/g_config.py tobrot/config.py
+```
+Follow and fill all the required variables that were already filled in the sample config file, but with your details. And you can also fill all other variables according to your need and all those are explained above already.
+
+## Deploying
+
+- Start docker daemon (skip if already running):
+```
+sudo dockerd
+```
+- Build Docker image:
+```
+sudo docker build . -t torrentleech-gdrive
+```
+- Run the image:
+```
+sudo docker run torrentleech-gdrive
+```
+
 
 ## How to Use?
 
-* send any one of the available command, as a reply to a valid link.
-
-* if file is larger than 1500MB, [read this](https://t.me/c/1434259219/113).
-
-* if file is a TAR archive, [read this](https://t.me/c/1434259219/104) to know how to uncompress.
+* send any one of the available command, as a reply to a valid link/magnet/torrent. 👊
 
 
 ## Credits, and Thanks to
 * [GautamKumar(me)](https://github.com/gautamajay52/TorrentLeech-Gdrive) 😬
-* [Publicleech](https://github.com/SpEcHiDe/PublicLeech) for his wonderful code😚
+* [SpEcHiDe](https://github.com/SpEcHiDe/PublicLeech) for his wonderful code😚
 * [Rclone Team](https://rclone.org) for theirs awesome tool☁️
 * [Dan Tès](https://telegram.dog/haskell) for his [Pyrogram Library](https://github.com/pyrogram/pyrogram)
 * [Robots](https://telegram.dog/Robots) for their [@UploadBot](https://telegram.dog/UploadBot)
